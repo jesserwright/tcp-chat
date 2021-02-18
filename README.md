@@ -1,5 +1,6 @@
 # How to run it
 
+- Clone the repository, and enter directory: `git clone https://github.com/jesserwright/tcp-chat && cd tcp-chat`
 - [Install rust](https://rustup.rs/) if you haven't already
 
 **Run locally:**

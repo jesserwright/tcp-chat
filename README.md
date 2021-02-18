@@ -4,10 +4,12 @@
 
 **Run locally:**
 
-`HOST=localhost PORT=80 cargo run --bin server`
-`HOST=localhost PORT=80 cargo run --bin client`
+Server: `HOST=localhost PORT=80 cargo run --bin server`
+
+Client: `HOST=localhost PORT=80 cargo run --bin client`
 
 **Run on remote server + local client**
 
-`HOST=localhost PORT=80 cargo run --bin server`
-`HOST=134.122.15.165 PORT=80 cargo run --bin client` (where the sever IP is 134.122.15.165)
+Server: `HOST=localhost PORT=80 cargo run --bin server`
+
+Client: `HOST=134.122.15.165 PORT=80 cargo run --bin client` (where the sever IP is 134.122.15.165)

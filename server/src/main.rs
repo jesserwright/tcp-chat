@@ -2,30 +2,28 @@ use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::net::TcpListener;
 use std::net::TcpStream;
 
-fn main() {
-    let port = "localhost:7878";
-    let listener = TcpListener::bind(port).expect("Failed to bind");
+fn main() -> std::io::Result<()> {
+    let listener = TcpListener::bind("localhost:7878")?;
 
     let mut messages = String::new();
 
     for stream in listener.incoming() {
-        let stream = stream.expect("Unable to accept");
-        handle_client(stream, &mut messages);
+        let stream = stream?;
+        handle_client(stream, &mut messages)?;
     }
+    Ok(())
 }
 
-fn handle_client(stream: TcpStream, messages: &mut String) {
+fn handle_client(stream: TcpStream, messages: &mut String) -> std::io::Result<()> {
     let mut reader = BufReader::new(&stream);
-    println!("Reading client message");
-    reader.read_line(messages).expect("Could not read");
-    println!("{}", &messages);
-
+    // pull the message in, and if it's just a new line, then just ping back.
+    let mut msg = String::new();
+    reader.read_line(&mut msg)?;
+    if !msg.contains(": \n") { // only push the message if it doesn't contain this
+        messages.push_str(&msg);
+    }
     let mut writer = BufWriter::new(&stream);
-    println!("Sending to client");
-    let mut response = messages.clone();
-    response.push_str("#");
-    writer
-        .write_all(response.as_bytes())
-        .expect("Could not write");
-    writer.flush().expect("Could not flush");
+    writer.write_all(messages.as_bytes())?;
+    writer.flush()?;
+    Ok(())
 }

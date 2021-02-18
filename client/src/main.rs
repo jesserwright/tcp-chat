@@ -1,31 +1,41 @@
-use std::io::{stdin, BufRead, BufReader, BufWriter, Write};
+use std::io::{stdin, BufReader, BufWriter, Read, Write};
 use std::net::TcpStream;
 
-fn main() {
-    let port = "localhost:7878";
+fn main() -> std::io::Result<()> {
+    print!("\nName: ");
+    std::io::stdout().flush().unwrap();
+    let mut name = String::new();
+    stdin().read_line(&mut name)?;
+    name.truncate(name.len() - 1);
+    name.push_str(": ");
+    println!("INFO: Hit enter to check for messages at any time");
+
     loop {
-        println!("Please input message:");
-        let mut input = String::new();
-        stdin().read_line(&mut input).expect("Failed to read input");
-        println!("Input is read");
-        let stream = TcpStream::connect(port).expect("Could not connect");
-        handle_connection(stream, &input[..]);
+        let mut input = String::from(&name);
+        print!("Message: ");
+        std::io::stdout().flush().unwrap();
+        stdin().read_line(&mut input)?;
+        // localhost:7878
+        let stream = TcpStream::connect("134.122.15.165:7878")?;
+        handle_connection(stream, &input[..])?;
     }
 }
 
-fn handle_connection(stream: TcpStream, input: &str) {
+fn handle_connection(stream: TcpStream, input: &str) -> std::io::Result<()> {
     let mut writer = BufWriter::new(&stream);
-    println!("Sending message to server");
     let bytes = input.as_bytes();
-    writer.write_all(bytes).expect("Could not write");
-    writer.flush().expect("Could not flush");
+    writer.write_all(bytes)?;
+    writer.flush()?;
 
     let mut reader = BufReader::new(&stream);
-    let mut response = Vec::new();
-    println!("Reading server response");
-    reader
-        .read_until(b"#"[0], &mut response)
-        .expect("Could not read");
 
-    println!("ALL MESSAGES:\n{}", String::from_utf8_lossy(&response));
+    let mut intermediate_buffer = Vec::new();
+    reader.read_to_end(&mut intermediate_buffer)?;
+
+    let response = String::from_utf8_lossy(&intermediate_buffer);
+
+    // do an OS clear and don't print the all messages
+    print!("{}[2J", 27 as char);
+    println!("{}", response);
+    Ok(())
 }

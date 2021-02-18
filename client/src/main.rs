@@ -1,9 +1,13 @@
+use std::env;
 use std::io::{stdin, BufReader, BufWriter, Read, Write};
 use std::net::TcpStream;
 
 fn main() -> std::io::Result<()> {
+    let host = env::var("HOST").expect("Failed to read host env var");
+    let port = env::var("PORT").expect("Failed to read port env var");
+
     print!("\nName: ");
-    std::io::stdout().flush().unwrap();
+    std::io::stdout().flush()?;
     let mut name = String::new();
     stdin().read_line(&mut name)?;
     name.truncate(name.len() - 1);
@@ -13,10 +17,10 @@ fn main() -> std::io::Result<()> {
     loop {
         let mut input = String::from(&name);
         print!("Message: ");
-        std::io::stdout().flush().unwrap();
+        std::io::stdout().flush()?;
         stdin().read_line(&mut input)?;
         // localhost:7878
-        let stream = TcpStream::connect("134.122.15.165:7878")?;
+        let stream = TcpStream::connect(format!("{}:{}", host, port))?;
         handle_connection(stream, &input[..])?;
     }
 }

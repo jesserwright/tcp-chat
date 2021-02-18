@@ -19,13 +19,14 @@ fn main() -> std::io::Result<()> {
 
 fn handle_client(stream: TcpStream, messages: &mut String) -> std::io::Result<()> {
     let mut reader = BufReader::new(&stream);
-    // pull the message in, and if it's just a new line, then just ping back.
     let mut msg = String::new();
     reader.read_line(&mut msg)?;
+
+    // This is an empty message (when just "enter" is hit)
     if !msg.contains(": \n") {
-        // only push the message if it doesn't contain this
         messages.push_str(&msg);
     }
+
     let mut writer = BufWriter::new(&stream);
     writer.write_all(messages.as_bytes())?;
     writer.flush()?;

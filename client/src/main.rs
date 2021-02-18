@@ -19,13 +19,13 @@ fn main() -> std::io::Result<()> {
         print!("Message: ");
         std::io::stdout().flush()?;
         stdin().read_line(&mut input)?;
-        // localhost:7878
         let stream = TcpStream::connect(format!("{}:{}", host, port))?;
         handle_connection(stream, &input[..])?;
     }
 }
 
 fn handle_connection(stream: TcpStream, input: &str) -> std::io::Result<()> {
+    // TODO: What would it look like to do this unbuffered, or with a fixed length buffer?
     let mut writer = BufWriter::new(&stream);
     let bytes = input.as_bytes();
     writer.write_all(bytes)?;
@@ -38,7 +38,7 @@ fn handle_connection(stream: TcpStream, input: &str) -> std::io::Result<()> {
 
     let response = String::from_utf8_lossy(&intermediate_buffer);
 
-    // do an OS clear and don't print the all messages
+    // This is the magic control character that clears a console
     print!("{}[2J", 27 as char);
     println!("{}", response);
     Ok(())
